@@ -1,0 +1,46 @@
+#!/bin/sh
+
+TOTAL_ATTEMPTS=720
+SLEEP_TIME=5
+
+usage () {
+    echo "Usage:"
+    echo "    pingcheck <address-to-ping> [total-attempts] [sleep-time]"
+    echo ""
+    echo "Variables:"
+    echo "  address-to-ping: The IP or hostname to ping"
+    echo "  total-attempts: Total number of times to ping, default 720"
+    echo "  sleep-time: Seconds to sleep between pings, default 5"
+    echo ""
+    echo "By default, pingcheck will ping an address for about an hour"
+    exit
+}
+
+if [ $# -lt 1 ] || [ $# -gt 3 ]; then
+    echo "Wrong number of arguments given"
+    echo ""
+    usage
+fi
+count=${2:-${TOTAL_ATTEMPTS}}
+sleep_time=${3:-${SLEEP_TIME}}
+attempts=0
+while [ $count -ne 0 ]; do
+    attempts=$((${attempts}+1))
+    ping -c 1 -t 2 $1 > /dev/null 2>&1          # Try once.  $1 is the IP
+    #ping -c 1 -t 2 $1                           # Try once.  $1 is the IP
+    rc=$?
+    if [ $rc -eq 0 ]; then
+        count=0                            # If okay, flag to exit loop.
+    else
+        count=$((${count}-1))              # So we don't go forever.
+        sleep ${sleep_time}
+    fi
+done
+
+if [ $rc -eq 0 ] ; then                    # Make final determination.
+    echo "Ping successfull after ${attempts} attempts."
+    echo `say Ping successfull after ${attempts} attempts.`
+else
+    echo "Timeout after ${attempts} attempts."
+    echo `say Timeout after ${attempts} attempts.`
+fi
