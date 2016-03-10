@@ -38,9 +38,19 @@ while [ $count -ne 0 ]; do
 done
 
 if [ $rc -eq 0 ] ; then                    # Make final determination.
-    echo "Ping successfull after ${attempts} attempts."
-    echo `say Ping successfull after ${attempts} attempts.`
+    message="Ping successfull after ${attempts} attempts."
+    echo "$message"
+    if hash terminal-notifier 2>/dev/null; then
+        terminal-notifier -title "Ping Check" -subtitle "Success" -message "$message" -sound default
+    else
+        echo `say Ping successfull after ${attempts} attempts.`
+    fi
 else
-    echo "Timeout after ${attempts} attempts."
-    echo `say Timeout after ${attempts} attempts.`
+    message="Timeout after ${attempts} attempts."
+    echo "$message"
+    if hash terminal-notifier 2>/dev/null; then
+        terminal-notifier -title "Ping Check" -subtitle "Timeout" -message "$message" -sound default
+    else
+        echo `say Timeout after ${attempts} attempts.`
+    fi
 fi
